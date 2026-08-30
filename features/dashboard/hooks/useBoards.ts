@@ -1,64 +1,61 @@
-"use client";
+'use client';
 
-import { boardDataService, boardService } from "@/lib/services";
-import { Board } from "@/lib/supabase/models";
-import { useSupabase } from "@/providers/SupabaseProvider";
-import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+
+interface Project {
+  id: string;
+  name: string;
+  status: string;
+  updatedAt: string;
+}
 
 export function useBoards() {
-  const { user } = useUser();
-  const { supabase, isLoaded } = useSupabase();
-  const [boards, setBoards] = useState<Board[]>([]);
+  const [boards, setBoards] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user && isLoaded && supabase) {
-      loadBoards();
-    }
-  }, [user, isLoaded]);
+    loadBoards();
+  }, []);
 
   async function loadBoards() {
-    if (!user) return;
-
     try {
       setLoading(true);
       setError(null);
-      const data = await boardService.getBoards(supabase!, user.id);
-      setBoards(data);
+
+      const workspaceId = localStorage.getItem('activeWorkspaceId');
+      if (!workspaceId) return;
+
+      const res = await fetch(`/api/projects?workspaceId=${workspaceId}`);
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error?.message);
+
+      setBoards(json.data);
     } catch (err) {
-      console.log(err);
-      setError(err instanceof Error ? err.message : "Failed to load boards.");
+      setError(err instanceof Error ? err.message : 'Failed to load projects.');
     } finally {
       setLoading(false);
     }
   }
 
-  async function createBoard(boardData: {
-    title: string;
-    description?: string;
-    color?: string;
-  }) {
-    if (!user) throw new Error("User not authenticated");
+  async function createBoard(boardData: { name: string; description?: string; color?: string }) {
+    const workspaceId = localStorage.getItem('activeWorkspaceId');
+    if (!workspaceId) throw new Error('No active workspace');
 
-    try {
-      const newBoard = await boardDataService.createBoardWithDefaultColumns(
-        supabase!,
-        {
-          ...boardData,
-          userId: user.id,
-        }
-      );
-      setBoards((prev) => [newBoard, ...prev]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create board.");
-    }
+    const res = await fetch(`/api/projects?workspaceId=${workspaceId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(boardData),
+    });
+
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error?.message);
+
+    setBoards((prev) => [json.data, ...prev]);
+    return json.data;
   }
 
-  const refetch = () => {
-    loadBoards();
-  };
+  const refetch = () => { loadBoards(); };
 
   return { boards, loading, error, createBoard, refetch };
 }

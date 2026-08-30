@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/db';
 import { WorkspaceService } from './workspace.service';
+import { NotificationService } from './notification.service';
+import { ActivityService } from './activity.service';
 import { ForbiddenError, NotFoundError } from '@/lib/errors';
 import { TaskStatus, Priority } from '@prisma/client';
 
@@ -121,7 +123,7 @@ export class TaskService {
     });
     const position = lastTask ? lastTask.position + 1024 : 1024;
 
-    return prisma.task.create({
+    const task = await prisma.task.create({
       data: {
         ...data,
         projectId,
@@ -130,6 +132,14 @@ export class TaskService {
         position,
       },
     });
+
+    // Log Activity
+    await ActivityService.logActivity(workspaceId, userId, 'TASK_CREATED', 'Task', task.id, {
+      title: task.title,
+      projectId,
+    });
+
+    return task;
   }
 
   /**
@@ -148,10 +158,19 @@ export class TaskService {
     const task = await prisma.task.findUnique({ where: { id: taskId, workspaceId } });
     if (!task) throw new NotFoundError('Task not found');
 
-    return prisma.task.update({
+    const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data,
     });
+
+    // Log Activity
+    await ActivityService.logActivity(workspaceId, userId, 'TASK_UPDATED', 'Task', taskId, {
+      title: updatedTask.title,
+      status: data.status,
+      priority: data.priority,
+    });
+
+    return updatedTask;
   }
 
   /**
@@ -168,9 +187,16 @@ export class TaskService {
       throw new ForbiddenError('You do not have permission to delete this task');
     }
 
-    return prisma.task.delete({
+    const deleted = await prisma.task.delete({
       where: { id: taskId },
     });
+
+    // Log Activity
+    await ActivityService.logActivity(workspaceId, userId, 'TASK_DELETED', 'Task', taskId, {
+      title: task.title,
+    });
+
+    return deleted;
   }
 
   /**
@@ -185,11 +211,30 @@ export class TaskService {
     const task = await prisma.task.findUnique({ where: { id: taskId, workspaceId } });
     if (!task) throw new NotFoundError('Task not found');
 
-    return prisma.taskAssignee.create({
+    const assigner = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+
+    const assignment = await prisma.taskAssignee.create({
       data: {
         taskId,
         userId: assigneeId,
       }
     });
+
+    // Notify assignee
+    await NotificationService.notifyTaskAssigned({
+      assigneeId,
+      assignerName: assigner?.name || 'Someone',
+      taskId,
+      taskTitle: task.title,
+      workspaceId,
+    });
+
+    // Log Activity
+    await ActivityService.logActivity(workspaceId, userId, 'TASK_ASSIGNED', 'Task', taskId, {
+      assigneeId,
+      taskTitle: task.title,
+    });
+
+    return assignment;
   }
 }

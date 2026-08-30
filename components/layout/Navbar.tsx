@@ -1,19 +1,11 @@
-"use client";
+'use client';
 
-import { UserButton, useUser } from "@clerk/nextjs";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Filter,
-  MoreHorizontal,
-  TaskFlow,
-} from "lucide-react";
-import React from "react";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ArrowLeft, ArrowRight, Filter, LayoutDashboard, MoreHorizontal } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
 interface NavbarProps {
   boardTitle?: string;
@@ -30,11 +22,10 @@ const Navbar = ({
   filterCount,
   className,
 }: NavbarProps) => {
-  const { isSignedIn, user } = useUser();
   const pathname = usePathname();
 
-  const isDashboardPage = pathname === "/dashboard";
-  const isBoardPage = pathname.startsWith("/boards/");
+  const isDashboardPage = pathname === '/dashboard' || pathname?.startsWith('/app');
+  const isBoardPage = pathname?.startsWith('/boards/');
 
   if (isDashboardPage) {
     return (
@@ -42,15 +33,14 @@ const Navbar = ({
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center space-x-2">
-              <TaskFlow className="h-6 w-6 sm:w-8 sm:h-8 text-blue-600" />
-              <span className="text-xl sm:text-2xl font-bold text-gray-900">
-                {" "}
-                TaskFlow  
-              </span>
+              <LayoutDashboard className="h-6 w-6 sm:w-8 sm:h-8 text-blue-600" />
+              <span className="text-xl sm:text-2xl font-bold text-gray-900">TaskFlow Pro</span>
             </div>
           </Link>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <UserButton />
+            <Link href="/app/settings/profile">
+              <Button variant="ghost" size="sm">Profile</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -64,7 +54,7 @@ const Navbar = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
-                href="/dashboard"
+                href="/app/dashboard"
                 className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-900 flex-shrink-0"
               >
                 <ArrowLeft className="h-4 w-4 sm:h-6 sm:w-6" />
@@ -73,66 +63,32 @@ const Navbar = ({
               </Link>
               <div className="h-4 sm:h-6 w-px bg-gray-300 hidden sm:block" />
               <div className="hidden sm:flex items-center space-x-1 sm:space-x-2 min-w-0">
-                <TaskFlow className="text-blue-600" />
+                <LayoutDashboard className="text-blue-600 h-5 w-5" />
                 <div className="items-center space-x-1 sm:space-x-2 min-w-0">
-                  <span className="text-lg font-bold text-gray-900 truncate">
-                    {boardTitle}
-                  </span>
+                  <span className="text-lg font-bold text-gray-900 truncate">{boardTitle}</span>
                   {onEditBoard && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 flex-shrink-0 p-0 cursor-pointer"
-                      onClick={onEditBoard}
-                    >
+                    <Button variant="ghost" size="sm" className="h-7 w-7 flex-shrink-0 p-0 cursor-pointer" onClick={onEditBoard}>
                       <MoreHorizontal />
                     </Button>
                   )}
                 </div>
               </div>
             </div>
-
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               {onFilterClick && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onFilterClick}
-                  className={`text-xs sm:text-sm cursor-pointer ${
-                    filterCount && filterCount > 0
-                      ? "bg-blue-100 border-blue-200"
-                      : ""
-                  }`}
+                  className={`text-xs sm:text-sm cursor-pointer ${filterCount && filterCount > 0 ? 'bg-blue-100 border-blue-200' : ''}`}
                 >
                   <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Filter</span>
                   {filterCount && filterCount > 0 && (
-                    <Badge
-                      variant={"secondary"}
-                      className="text-xs ml-1 sm:ml-2 bg-blue-100 border-blue-200"
-                    >
+                    <Badge variant="secondary" className="text-xs ml-1 sm:ml-2 bg-blue-100 border-blue-200">
                       {filterCount}
                     </Badge>
                   )}
-                </Button>
-              )}
-              <UserButton />
-            </div>
-          </div>
-          <div className="flex sm:hidden mt-4 justify-center items-center space-x-1 sm:space-x-2 min-w-0">
-            <TaskFlow className="text-blue-600" />
-            <div className="items-center space-x-1 sm:space-x-2 min-w-0">
-              <span className="text-lg font-bold text-gray-900 truncate">
-                {boardTitle}
-              </span>
-              {onEditBoard && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 flex-shrink-0 p-0 cursor-pointer"
-                  onClick={onEditBoard}
-                >
-                  <MoreHorizontal />
                 </Button>
               )}
             </div>
@@ -143,60 +99,24 @@ const Navbar = ({
   }
 
   return (
-    <header
-      className={cn(
-        "border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50",
-        className,
-      )}
-    >
+    <header className={cn('border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50', className)}>
       <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center space-x-2 cursor-pointer">
-            <TaskFlow className="h-6 w-6 sm:w-8 sm:h-8 text-blue-600" />
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">
-              {" "}
-              TaskFlow  
-            </span>
+            <LayoutDashboard className="h-6 w-6 sm:w-8 sm:h-8 text-blue-600" />
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">TaskFlow Pro</span>
           </div>
         </Link>
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <div>
-            {isSignedIn ? (
-              <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
-                <span className="hidden sm:block text-xs sm:text-sm text-gray-600">
-                  Welcome,{" "}
-                  {user?.firstName ?? user?.emailAddresses[0].emailAddress}
-                </span>
-                <Link href="/dashboard">
-                  <Button
-                    size="sm"
-                    className="text-xs sm:text-sm cursor-pointer"
-                  >
-                    Go to Dashboard <ArrowRight />
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Link href="/sign-in">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs sm:text-sm cursor-pointer"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/sign-up">
-                  <Button
-                    size="sm"
-                    className="text-xs sm:text-sm cursor-pointer"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-              </div>
-            )}
+          <div className="flex items-center space-x-2">
+            <Link href="/login">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm cursor-pointer">Sign In</Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm" className="text-xs sm:text-sm cursor-pointer">
+                Get Started <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

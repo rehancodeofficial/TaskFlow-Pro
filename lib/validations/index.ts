@@ -11,5 +11,5 @@ export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
 
 // Foundation for error formatting
 export function formatZodError(error: z.ZodError) {
-  return error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+  return error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
 }
