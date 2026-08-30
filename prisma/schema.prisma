@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -171,6 +170,7 @@ model Task {
   sprintId     String?
   workspaceId  String
   reporterId   String?
+  parentId     String?    // Added for subtasks
   title        String
   description  String?
   status       TaskStatus @default(TODO)
@@ -192,9 +192,13 @@ model Task {
   comments  Comment[]
   files     File[]
 
+  parent    Task?  @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks  Task[] @relation("Subtasks")
+
   @@index([projectId])
   @@index([sprintId])
   @@index([workspaceId])
+  @@index([parentId])
 }
 
 model TaskAssignee {
