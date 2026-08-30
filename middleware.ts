@@ -1,32 +1,47 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { decrypt } from '@/lib/auth';
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/boards(.*)"]);
+const protectedRoutes = ['/app', '/api/workspaces', '/api/projects', '/api/tasks'];
+const publicRoutes = ['/login', '/register', '/api/auth'];
 
-const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
 
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-
-  if (!userId && isProtectedRoute(req)) {
-    const signInUrl = new URL("/sign-in", req.url);
-    return NextResponse.redirect(signInUrl);
+  const cookieStore = request.cookies;
+  const sessionValue = cookieStore.get('session')?.value;
+  
+  let payload = null;
+  if (sessionValue) {
+    payload = await decrypt(sessionValue);
   }
 
-  if (userId && isProtectedRoute(req)) {
-    return NextResponse.next();
+  // Redirect to login if accessing a protected route without a valid session
+  if (isProtected && (!payload || !payload.userId)) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (userId && isAuthRoute(req)) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+  // Redirect to app if accessing login/register while authenticated
+  if (isPublic && payload?.userId && !pathname.startsWith('/api')) {
+    return NextResponse.redirect(new URL('/app/dashboard', request.url));
+  }
+  
+  // Custom header to pass userId to server components/actions downstream
+  const requestHeaders = new Headers(request.headers);
+  if (payload?.userId) {
+    requestHeaders.set('x-user-id', payload.userId as string);
   }
 
-  return NextResponse.next();
-});
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+}
 
 export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
