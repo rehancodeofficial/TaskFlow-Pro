@@ -1,57 +1,49 @@
-# TaskFlow Pro
+# TaskFlow Enterprise
 
-**AI-powered project, team, and workflow management for modern businesses.**
+TaskFlow Enterprise is a production-quality Multi-Tenant Project Management SaaS inspired by Jira, Asana, Linear, and Monday.com.
 
-TaskFlow Pro is a complete project and workflow management platform built for multi-tenant organizations. It provides teams with a robust suite of tools to plan, track, and collaborate on work.
+## Features
+- Workspaces / Multi-Tenant Isolation
+- Project & Team Management
+- Sprint Planning
+- Kanban Boards with Real-time Updates
+- RBAC (Role-Based Access Control)
+- Audit & Activity Logging
+- Dashboard Analytics
 
-## Core Features
-- **Workspace Isolation:** Strict tenant boundaries for businesses and organizations.
-- **Project & Task Management:** Kanban boards, task assignments, tracking, and sprints.
-- **AI Task Generation:** Automatically generate structured tasks and epics.
-- **Collaboration:** Comments, threaded replies, file attachments.
-- **Analytics:** Workload tracking, burndown charts, and progress reports.
-- **Role-Based Access Control:** Configurable permissions for owners, admins, managers, members, and viewers.
+## Architecture
+- **Backend:** Java 21, Spring Boot 3+, Spring Security, Spring Data JPA, JWT
+- **Frontend:** Next.js, React, Tailwind CSS (Planned)
+- **Database:** PostgreSQL (with Flyway for migrations)
+- **Caching & Rate Limiting:** Redis
+- **Real-Time:** Spring WebSocket
 
-## Technology Stack
-- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS v4
-- **Backend:** Next.js Route Handlers & Server Actions
-- **Database:** PostgreSQL (via Prisma ORM)
-- **Authentication:** Clerk / Supabase Auth (Clerk currently configured)
-- **UI Components:** Radix UI, lucide-react, dnd-kit
+## Setup & Local Development
 
-## Development Setup
+### Prerequisites
+- Docker & Docker Compose
+- Java 21
+- Maven
 
-1. **Clone & Install**
+### Step-by-step Execution
+1. Copy `.env.example` to `.env`:
    ```bash
-   npm install
+   cp .env.example .env
    ```
-
-2. **Environment Variables**
-   Create a `.env.local` based on `.env.example`:
-   ```
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-   CLERK_SECRET_KEY=
-   DATABASE_URL="postgresql://..."
-   NEXT_PUBLIC_SUPABASE_URL=
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=
-   AI_API_KEY=
-   ```
-
-3. **Database Setup**
+2. Start the infrastructure (PostgreSQL & Redis):
    ```bash
-   npx prisma generate
-   npx prisma db push
-   # For seed data:
-   npm run db:seed
+   docker compose up -d postgres redis
    ```
-
-4. **Run Development Server**
+3. Run the backend application:
    ```bash
-   npm run dev
+   cd backend
+   ./mvnw spring-boot:run
    ```
+   *(If you don't have Maven installed, use the wrapper or your IDE)*
+4. Access the API documentation (Swagger UI):
+   http://localhost:8080/swagger-ui.html
 
-## Documentation
-- [Architecture Details](ARCHITECTURE.md)
-- [Database Schema](DATABASE.md)
-- [API Contract](API.md)
-- [Design Guidelines](DESIGN.md)
+## Project Structure
+- `backend/`: Spring Boot Java backend
+- `frontend/`: Next.js frontend (Coming Soon)
+- `docs/`: Technical documentation (Architecture, ERD, API)
