@@ -177,7 +177,7 @@ export default function ProjectsPage() {
         </div>
       ) : projects.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
-          <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
+          <div className="mx-auto flex max-w-105 flex-col items-center justify-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <FolderKanban className="h-10 w-10 text-muted-foreground" />
             </div>

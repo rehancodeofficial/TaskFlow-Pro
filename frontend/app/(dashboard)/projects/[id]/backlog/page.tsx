@@ -80,7 +80,7 @@ export default function BacklogPage({ params }: { params: Promise<{ id: string }
               <div 
                 {...provided.droppableProps} 
                 ref={provided.innerRef}
-                className="min-h-[200px]"
+                className="min-h-50"
               >
                 {tasks.length === 0 ? (
                   <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">

@@ -61,8 +61,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-      <Card className="w-[450px]">
+    <div className="flex min-h-screen w-full items-center justify-center bg-zinc-50 py-12 dark:bg-zinc-950">
+      <Card className="w-112.5">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
           <CardDescription>

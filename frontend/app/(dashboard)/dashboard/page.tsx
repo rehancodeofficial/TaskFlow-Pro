@@ -166,7 +166,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="pl-2">
             {statusData.length > 0 ? (
-              <div className="h-[300px]">
+              <div className="h-75">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-75 flex items-center justify-center text-muted-foreground">
                 No task data available
               </div>
             )}
@@ -192,7 +192,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {priorityData.length > 0 ? (
-              <div className="h-[300px]">
+              <div className="h-75">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                       outerRadius={100}
                       paddingAngle={2}
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                     >
                       {priorityData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-75 flex items-center justify-center text-muted-foreground">
                 No priority data available
               </div>
             )}
