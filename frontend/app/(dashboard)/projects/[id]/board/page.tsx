@@ -107,8 +107,8 @@ export default function KanbanBoardPage({ params }: { params: Promise<{ id: stri
       const destColIdx = newCols.findIndex(c => c.id === destinationColumnId);
       if (destColIdx !== -1) {
         // Update its position
-        movedTask.position = newPosition;
-        newCols[destColIdx].tasks.push(movedTask);
+        (movedTask as Task).position = newPosition;
+        newCols[destColIdx].tasks.push(movedTask as Task);
         // Resort destination
         newCols[destColIdx].tasks.sort((a, b) => a.position - b.position);
       }

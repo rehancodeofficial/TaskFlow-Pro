@@ -180,7 +180,6 @@ export default function SprintsPage({ params }: { params: Promise<{ id: string }
                         mode="single"
                         selected={startDate}
                         onSelect={setStartDate}
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -205,7 +204,6 @@ export default function SprintsPage({ params }: { params: Promise<{ id: string }
                         mode="single"
                         selected={endDate}
                         onSelect={setEndDate}
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
