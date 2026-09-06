@@ -1,0 +1,12 @@
+.env
+*.class
+target/
+*.jar
+*.war
+.DS_Store
+.idea/
+*.iml
+node_modules/
+.next/
+dist/
+*.log
